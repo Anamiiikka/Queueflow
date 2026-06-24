@@ -1,0 +1,28 @@
+{
+  "name": "queueflow",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Distributed job processing system with a custom Redis/Lua queue core",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "tsc --build",
+    "typecheck": "tsc --build --noEmit",
+    "test": "node --test --import tsx packages/core/test/recovery.test.ts",
+    "worker": "tsx packages/worker/src/index.ts",
+    "api": "tsx packages/api/src/index.ts",
+    "db:migrate": "tsx packages/db/src/migrate.ts",
+    "demo:enqueue": "tsx packages/core/scripts/demo-enqueue.ts",
+    "infra:up": "docker compose up -d",
+    "infra:down": "docker compose down"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "@types/node": "^22.10.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
