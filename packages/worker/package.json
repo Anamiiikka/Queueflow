@@ -1,0 +1,17 @@
+{
+  "name": "@queueflow/worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "build": "tsc --build"
+  },
+  "dependencies": {
+    "@queueflow/core": "*",
+    "@queueflow/db": "*",
+    "@queueflow/metrics": "*",
+    "@queueflow/shared": "*",
+    "ioredis": "^5.4.1"
+  }
+}
