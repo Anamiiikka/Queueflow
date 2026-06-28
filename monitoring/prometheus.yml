@@ -1,0 +1,22 @@
+# Prometheus scrape config. The API and worker run on the host during dev, so we
+# scrape them via host.docker.internal (Docker Desktop maps this to the host).
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: queueflow-api
+    static_configs:
+      - targets: ["host.docker.internal:4000"]
+        labels:
+          service: api
+
+  - job_name: queueflow-worker
+    static_configs:
+      - targets: ["host.docker.internal:9100"]
+        labels:
+          service: worker
+
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]

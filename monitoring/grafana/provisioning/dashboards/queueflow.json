@@ -1,0 +1,71 @@
+{
+  "title": "QueueFlow Overview",
+  "uid": "queueflow-overview",
+  "tags": ["queueflow"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "time": { "from": "now-15m", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Throughput (completed/sec)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        { "expr": "sum by (type) (rate(qf_jobs_completed_total[1m]))", "legendFormat": "{{type}}" }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Failures (/sec) by outcome",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        { "expr": "sum by (outcome) (rate(qf_jobs_failed_total[1m]))", "legendFormat": "{{outcome}}" }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Queue depth by state",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        { "expr": "sum by (state) (qf_queue_depth)", "legendFormat": "{{state}}" }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Job duration p50/p95/p99 (s)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        { "expr": "histogram_quantile(0.50, sum by (le) (rate(qf_job_duration_seconds_bucket[5m])))", "legendFormat": "p50" },
+        { "expr": "histogram_quantile(0.95, sum by (le) (rate(qf_job_duration_seconds_bucket[5m])))", "legendFormat": "p95" },
+        { "expr": "histogram_quantile(0.99, sum by (le) (rate(qf_job_duration_seconds_bucket[5m])))", "legendFormat": "p99" }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Total completed",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 16 },
+      "targets": [{ "expr": "sum(qf_jobs_completed_total)" }]
+    },
+    {
+      "id": 6,
+      "title": "Total dead-lettered",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 16 },
+      "targets": [{ "expr": "sum(qf_jobs_failed_total{outcome=\"dead\"})" }]
+    },
+    {
+      "id": 7,
+      "title": "Jobs recovered (crash recovery)",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 16 },
+      "targets": [{ "expr": "sum(qf_jobs_recovered_total)" }]
+    }
+  ]
+}
