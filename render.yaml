@@ -47,12 +47,10 @@ services:
         value: "5000"
       - key: WORKER_DEPTH_MS
         value: "10000"
-      # Allow the dashboard origin (host injected from the static site below).
+      # Allow the dashboard origin. Pinned to the full URL — Render's `fromService
+      # host` resolves to just the slug (no .onrender.com), which breaks CORS matching.
       - key: CORS_ORIGINS
-        fromService:
-          name: queueflow-dashboard
-          type: web
-          property: host
+        value: https://queueflow-dashboard.onrender.com
 
   - type: web
     name: queueflow-dashboard
@@ -61,12 +59,10 @@ services:
     staticPublishPath: ./frontend/out
     pullRequestPreviewsEnabled: false
     envVars:
-      # Baked into the static bundle at build time; host injected from the API service.
+      # Baked into the static bundle at build time. Pinned to the API's full URL —
+      # Render's `fromService host` resolves to just the slug (no .onrender.com).
       - key: NEXT_PUBLIC_API_URL
-        fromService:
-          name: queueflow-api
-          type: web
-          property: host
+        value: https://queueflow-api-zxzh.onrender.com
     routes:
       - type: rewrite
         source: /*
