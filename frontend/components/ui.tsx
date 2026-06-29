@@ -1,22 +1,22 @@
 import type { JobStatus } from "@/lib/types";
 
 const STATUS_STYLES: Record<string, string> = {
-  pending: "bg-slate-400/15 text-slate-300",
-  processing: "bg-blue-400/15 text-blue-300",
-  completed: "bg-emerald-400/15 text-emerald-300",
-  retrying: "bg-amber-400/15 text-amber-300",
-  failed: "bg-amber-400/15 text-amber-300",
-  dead: "bg-red-400/15 text-red-300",
-  cancelled: "bg-zinc-400/15 text-zinc-400",
+  pending: "bg-sky-400/15 text-sky-300 ring-1 ring-inset ring-sky-400/25",
+  processing: "bg-amber-400/15 text-amber-300 ring-1 ring-inset ring-amber-400/30",
+  completed: "bg-emerald-400/15 text-emerald-300 ring-1 ring-inset ring-emerald-400/25",
+  retrying: "bg-orange-400/15 text-orange-300 ring-1 ring-inset ring-orange-400/25",
+  failed: "bg-orange-400/15 text-orange-300 ring-1 ring-inset ring-orange-400/25",
+  dead: "bg-rose-400/15 text-rose-300 ring-1 ring-inset ring-rose-400/30",
+  cancelled: "bg-zinc-400/15 text-zinc-400 ring-1 ring-inset ring-zinc-400/20",
 };
 
 const DOT: Record<string, string> = {
-  pending: "bg-slate-400",
-  processing: "bg-blue-400 animate-pulse",
+  pending: "bg-sky-400",
+  processing: "bg-amber-400 animate-pulse shadow-[0_0_8px] shadow-amber-400",
   completed: "bg-emerald-400",
-  retrying: "bg-amber-400",
-  failed: "bg-amber-400",
-  dead: "bg-red-400",
+  retrying: "bg-orange-400",
+  failed: "bg-orange-400",
+  dead: "bg-rose-400",
   cancelled: "bg-zinc-500",
 };
 
@@ -29,36 +29,71 @@ export function StatusBadge({ status }: { status: JobStatus | string }) {
   );
 }
 
-const ACCENTS: Record<string, { text: string; ring: string }> = {
-  indigo: { text: "text-indigo-300", ring: "from-indigo-500/40" },
-  blue: { text: "text-blue-300", ring: "from-blue-500/40" },
-  emerald: { text: "text-emerald-300", ring: "from-emerald-500/40" },
-  red: { text: "text-red-300", ring: "from-red-500/40" },
+const ACCENTS: Record<
+  string,
+  { num: string; glow: string; bar: string; orb: string }
+> = {
+  sky: {
+    num: "text-sky-300",
+    glow: "drop-shadow-[0_0_16px_rgba(56,189,248,0.5)]",
+    bar: "from-sky-400",
+    orb: "bg-sky-500/30",
+  },
+  amber: {
+    num: "text-amber-300",
+    glow: "drop-shadow-[0_0_16px_rgba(251,191,36,0.5)]",
+    bar: "from-amber-400",
+    orb: "bg-amber-500/30",
+  },
+  emerald: {
+    num: "text-emerald-300",
+    glow: "drop-shadow-[0_0_16px_rgba(52,211,153,0.5)]",
+    bar: "from-emerald-400",
+    orb: "bg-emerald-500/30",
+  },
+  rose: {
+    num: "text-rose-300",
+    glow: "drop-shadow-[0_0_16px_rgba(251,113,133,0.5)]",
+    bar: "from-rose-400",
+    orb: "bg-rose-500/30",
+  },
+  violet: {
+    num: "text-violet-300",
+    glow: "drop-shadow-[0_0_16px_rgba(167,139,250,0.5)]",
+    bar: "from-violet-400",
+    orb: "bg-violet-500/30",
+  },
 };
 
 export function StatCard({
   label,
   value,
-  accent = "indigo",
-  hint,
+  accent = "violet",
 }: {
   label: string;
   value: number | string;
   accent?: keyof typeof ACCENTS;
-  hint?: string;
 }) {
-  const a = ACCENTS[accent] ?? ACCENTS.indigo!;
+  const a = ACCENTS[accent] ?? ACCENTS.violet!;
   return (
-    <div className="panel relative overflow-hidden p-5 transition hover:border-white/15">
-      <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r ${a.ring} to-transparent`} />
-      <div className="text-[11px] font-medium uppercase tracking-wider text-muted">{label}</div>
-      <div className={`mt-2 text-4xl font-semibold tabular-nums ${a.text}`}>{value}</div>
-      {hint && <div className="mt-1 text-xs text-muted">{hint}</div>}
+    <div className="panel group relative overflow-hidden p-5 transition hover:border-white/20">
+      <div className={`absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r ${a.bar} to-transparent`} />
+      <div
+        className={`pointer-events-none absolute -right-6 -top-8 h-24 w-24 rounded-full blur-3xl transition-opacity group-hover:opacity-90 ${a.orb} opacity-60`}
+      />
+      <div className="relative">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
+          {label}
+        </div>
+        <div className={`mt-2 font-display text-[2.7rem] font-bold leading-none tabular-nums ${a.num} ${a.glow}`}>
+          {value}
+        </div>
+      </div>
     </div>
   );
 }
 
-/** Tiny inline-SVG area sparkline for the throughput series. */
+/** Inline-SVG area sparkline with a gradient fill. */
 export function Sparkline({ data, className = "" }: { data: number[]; className?: string }) {
   const w = 100;
   const h = 28;
@@ -69,11 +104,17 @@ export function Sparkline({ data, className = "" }: { data: number[]; className?
   const area = `0,${h} ${line} ${w},${h}`;
   return (
     <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className={className}>
-      <polygon points={area} fill="rgba(99,102,241,0.18)" />
+      <defs>
+        <linearGradient id="spark" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="rgba(167,139,250,0.5)" />
+          <stop offset="100%" stopColor="rgba(167,139,250,0)" />
+        </linearGradient>
+      </defs>
+      <polygon points={area} fill="url(#spark)" />
       <polyline
         points={line}
         fill="none"
-        stroke="rgb(129,140,248)"
+        stroke="rgb(192,132,252)"
         strokeWidth="1.5"
         vectorEffect="non-scaling-stroke"
       />

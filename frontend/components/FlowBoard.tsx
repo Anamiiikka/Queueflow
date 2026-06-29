@@ -5,19 +5,19 @@ import { api } from "@/lib/api";
 import type { FlowChip, FlowState } from "@/lib/useWebSocket";
 
 const TYPE_COLOR: Record<string, string> = {
-  email: "bg-indigo-500/20 text-indigo-200 border-indigo-400/30",
-  image: "bg-emerald-500/20 text-emerald-200 border-emerald-400/30",
-  pdf: "bg-amber-500/20 text-amber-200 border-amber-400/30",
-  ai: "bg-violet-500/20 text-violet-200 border-violet-400/30",
+  email: "bg-violet-500/25 text-violet-100 border-violet-400/40 shadow-violet-500/20",
+  image: "bg-emerald-500/25 text-emerald-100 border-emerald-400/40 shadow-emerald-500/20",
+  pdf: "bg-amber-500/25 text-amber-100 border-amber-400/40 shadow-amber-500/20",
+  ai: "bg-cyan-500/25 text-cyan-100 border-cyan-400/40 shadow-cyan-500/20",
 };
-const typeClass = (t: string) => TYPE_COLOR[t] ?? "bg-white/10 text-ink border-white/15";
+const typeClass = (t: string) => TYPE_COLOR[t] ?? "bg-white/10 text-ink border-white/15 shadow-white/10";
 
 function Chip({ chip, pulse }: { chip: FlowChip; pulse?: boolean }) {
   return (
     <span
-      className={`flow-chip inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 font-mono text-[10px] ${typeClass(
+      className={`flow-chip inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 font-mono text-[10px] font-semibold shadow-[0_0_10px_-3px] ${typeClass(
         chip.type,
-      )} ${pulse ? "shadow-[0_0_12px_-2px] shadow-blue-400/50" : ""}`}
+      )}`}
       title={chip.id}
     >
       <span className={`h-1 w-1 rounded-full bg-current ${pulse ? "animate-pulse" : ""}`} />
@@ -26,24 +26,33 @@ function Chip({ chip, pulse }: { chip: FlowChip; pulse?: boolean }) {
   );
 }
 
+const COLUMN: Record<string, { text: string; bar: string }> = {
+  queued: { text: "text-sky-300", bar: "from-sky-400/70" },
+  processing: { text: "text-amber-300", bar: "from-amber-400/70" },
+  completed: { text: "text-emerald-300", bar: "from-emerald-400/70" },
+  dead: { text: "text-rose-300", bar: "from-rose-400/70" },
+};
+
 function Column({
   title,
   chips,
-  accent,
+  variant,
   pulse,
   empty,
 }: {
   title: string;
   chips: FlowChip[];
-  accent: string;
+  variant: keyof typeof COLUMN;
   pulse?: boolean;
   empty: string;
 }) {
+  const c = COLUMN[variant]!;
   return (
-    <div className="flex min-h-[150px] flex-col rounded-xl border border-white/[0.06] bg-black/20">
+    <div className="relative flex min-h-[150px] flex-col overflow-hidden rounded-xl border border-white/[0.08] bg-black/30">
+      <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r ${c.bar} to-transparent`} />
       <div className="flex items-center justify-between border-b border-white/[0.06] px-3 py-2">
-        <span className={`text-[11px] font-semibold uppercase tracking-wider ${accent}`}>{title}</span>
-        <span className="rounded-full bg-white/5 px-2 py-0.5 text-[11px] tabular-nums text-muted">
+        <span className={`text-[11px] font-bold uppercase tracking-wider ${c.text}`}>{title}</span>
+        <span className={`rounded-full bg-white/5 px-2 py-0.5 text-[11px] font-semibold tabular-nums ${c.text}`}>
           {chips.length}
         </span>
       </div>
@@ -106,16 +115,10 @@ export function FlowBoard({ flow }: { flow: FlowState }) {
       </div>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Column title="Queued" chips={flow.queued} accent="text-slate-300" empty="idle" />
-        <Column
-          title="Processing"
-          chips={flow.processing}
-          accent="text-blue-300"
-          pulse
-          empty="—"
-        />
-        <Column title="Completed" chips={flow.completed} accent="text-emerald-300" empty="—" />
-        <Column title="Dead-letter" chips={flow.dead} accent="text-red-300" empty="none 🎉" />
+        <Column title="Queued" chips={flow.queued} variant="queued" empty="idle" />
+        <Column title="Processing" chips={flow.processing} variant="processing" pulse empty="—" />
+        <Column title="Completed" chips={flow.completed} variant="completed" empty="—" />
+        <Column title="Dead-letter" chips={flow.dead} variant="dead" empty="none 🎉" />
       </div>
 
       {chaos.isSuccess && (

@@ -5,11 +5,15 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // A calm dark dashboard palette.
-        card: "#0c0c0e",
-        edge: "#1e1e24",
-        ink: "#e7e7ea",
-        muted: "#8a8a93",
+        card: "#0d0c16",
+        edge: "#23223a",
+        ink: "#eef0f6",
+        muted: "#8b8ca3",
+      },
+      fontFamily: {
+        sans: ["var(--font-display)", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "system-ui", "sans-serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
       },
     },
   },

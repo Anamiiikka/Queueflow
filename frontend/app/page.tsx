@@ -51,11 +51,14 @@ export default function DashboardPage() {
     <main className="mx-auto max-w-6xl space-y-6 p-6">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-indigo-400 to-violet-600 text-lg font-black text-white shadow-lg shadow-indigo-500/30">
+          <div className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-violet-400 via-fuchsia-500 to-cyan-400 font-display text-xl font-black text-white shadow-[0_8px_28px_-6px_rgba(217,70,239,0.7)]">
             Q
           </div>
           <div>
-            <h1 className="text-xl font-semibold leading-tight">QueueFlow</h1>
+            <h1 className="font-display text-2xl font-bold leading-tight tracking-tight">
+              <span className="text-gradient">Queue</span>
+              <span className="text-ink">Flow</span>
+            </h1>
             <p className="text-xs text-muted">Distributed job processing — live</p>
           </div>
         </div>
@@ -84,10 +87,10 @@ export default function DashboardPage() {
       </header>
 
       <section className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <StatCard label="Pending" value={live.pending ?? 0} accent="indigo" />
-        <StatCard label="Processing" value={live.processing ?? 0} accent="blue" />
+        <StatCard label="Pending" value={live.pending ?? 0} accent="sky" />
+        <StatCard label="Processing" value={live.processing ?? 0} accent="amber" />
         <StatCard label="Completed" value={totals.completed ?? 0} accent="emerald" />
-        <StatCard label="Dead-letter" value={live.dlq ?? 0} accent="red" />
+        <StatCard label="Dead-letter" value={live.dlq ?? 0} accent="rose" />
       </section>
 
       <FlowBoard flow={flow} />
