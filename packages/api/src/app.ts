@@ -1,4 +1,5 @@
 import express, { type Express } from "express";
+import cors from "cors";
 import { Redis } from "ioredis";
 import type { Pool } from "@queueflow/db";
 import { contentType, renderMetrics } from "@queueflow/metrics";
@@ -16,6 +17,13 @@ import { requireAuth } from "./middleware/auth.js";
 export function createApp(redis: Redis, pool: Pool): Express {
   const app = express();
   app.set("trust proxy", true);
+  // Allow the dashboard origin(s) to call the API from the browser.
+  app.use(
+    cors({
+      origin: config.corsOrigins,
+      exposedHeaders: ["X-RateLimit-Remaining"],
+    }),
+  );
   app.use(express.json({ limit: "256kb" }));
 
   const auth = new AuthService(pool, redis);

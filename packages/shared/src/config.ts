@@ -31,6 +31,8 @@ export const config = {
 
   // --- API ---
   apiPort: envInt("API_PORT", 4000),
+  /** Allowed browser origins for CORS (comma-separated). */
+  corsOrigins: env("CORS_ORIGINS", "http://localhost:3000").split(","),
   jwtSecret: env("JWT_SECRET", "dev-insecure-secret-change-me"),
   jwtAccessTtl: env("JWT_ACCESS_TTL", "15m"),
   jwtRefreshTtl: env("JWT_REFRESH_TTL", "7d"),
