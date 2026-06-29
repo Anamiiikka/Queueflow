@@ -42,6 +42,24 @@ export class AuthService {
     return { id, ...(await this.issueTokens(id, "user")) };
   }
 
+  /**
+   * Issue a token for a shared demo user without credentials — lets the public
+   * dashboard skip the signup step. Auth (JWT, rate limiting) still applies; this
+   * just bootstraps a session. Disable with ALLOW_DEMO_AUTH=false.
+   */
+  async demo(): Promise<{ id: string } & Tokens> {
+    const email = "demo@queueflow.local";
+    const hash = await bcrypt.hash(randomUUID(), 10);
+    const { rows } = await this.pool.query<{ id: string; role: string }>(
+      `INSERT INTO users (email, password_hash, role) VALUES ($1, $2, 'user')
+       ON CONFLICT (email) DO UPDATE SET email = EXCLUDED.email
+       RETURNING id, role`,
+      [email, hash],
+    );
+    const user = rows[0]!;
+    return { id: user.id, ...(await this.issueTokens(user.id, user.role)) };
+  }
+
   async login(email: string, password: string): Promise<{ id: string } & Tokens> {
     const { rows } = await this.pool.query<{ id: string; password_hash: string; role: string }>(
       `SELECT id, password_hash, role FROM users WHERE email = $1`,

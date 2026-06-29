@@ -60,6 +60,8 @@ export const config = {
   /** Per-user token-bucket: sustained requests/min and burst capacity. */
   rateLimitPerMin: envInt("RATE_LIMIT_PER_MIN", 120),
   rateLimitBurst: envInt("RATE_LIMIT_BURST", 40),
+  /** Issue a frictionless demo token via POST /auth/demo (no signup). */
+  allowDemoAuth: envBool("ALLOW_DEMO_AUTH", true),
 } as const;
 
 export type Config = typeof config;

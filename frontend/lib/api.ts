@@ -26,7 +26,19 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+/** Fetch a frictionless demo token (no signup) and store it. */
+export async function ensureSession(force = false): Promise<void> {
+  if (!force && tokenStore.get()) return;
+  const res = await fetch(`${API_BASE}/auth/demo`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+  });
+  if (!res.ok) throw new ApiError(res.status, "demo_auth_failed");
+  const { accessToken } = (await res.json()) as { accessToken: string };
+  tokenStore.set(accessToken);
+}
+
+async function request<T>(path: string, init: RequestInit = {}, retried = false): Promise<T> {
   const token = tokenStore.get();
   const res = await fetch(`${API_BASE}${path}`, {
     ...init,
@@ -36,6 +48,11 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
       ...(init.headers ?? {}),
     },
   });
+  // Token missing/expired → silently re-acquire a demo session and retry once.
+  if (res.status === 401 && !retried && !path.startsWith("/auth")) {
+    await ensureSession(true);
+    return request(path, init, true);
+  }
   if (res.status === 204) return undefined as T;
   const body = await res.json().catch(() => ({}));
   if (!res.ok) throw new ApiError(res.status, (body as { error?: string }).error ?? res.statusText);

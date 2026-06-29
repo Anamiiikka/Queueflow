@@ -1,11 +1,21 @@
 import { Router } from "express";
+import { config } from "@queueflow/shared";
 import type { AuthService } from "../services/AuthService.js";
-import { asyncHandler } from "../middleware/error.js";
+import { ApiError, asyncHandler } from "../middleware/error.js";
 import { validateBody } from "../middleware/validate.js";
 import { loginSchema, refreshSchema, registerSchema } from "../schemas.js";
 
 export function authRouter(auth: AuthService): Router {
   const r = Router();
+
+  // Frictionless demo session — no signup. Returns the same token shape as login.
+  r.post(
+    "/demo",
+    asyncHandler(async (_req, res) => {
+      if (!config.allowDemoAuth) throw new ApiError(403, "demo_disabled");
+      res.json(await auth.demo());
+    }),
+  );
 
   r.post(
     "/register",

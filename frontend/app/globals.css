@@ -7,21 +7,36 @@
 }
 
 body {
-  background: #07070a;
+  /* Deep base with a soft indigo glow up top. */
+  background:
+    radial-gradient(1100px 500px at 50% -200px, rgba(99, 102, 241, 0.14), transparent 70%),
+    #070710;
   color: #e7e7ea;
 }
 
 @layer components {
   .panel {
-    @apply rounded-xl border border-edge bg-card;
+    @apply rounded-2xl border border-white/[0.06] bg-white/[0.02];
   }
   .btn {
-    @apply rounded-md border border-edge bg-white/5 px-3 py-1.5 text-sm font-medium text-ink transition hover:bg-white/10 disabled:opacity-40;
+    @apply rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm font-medium text-ink transition hover:bg-white/10 active:scale-[0.98] disabled:opacity-40;
   }
   .btn-primary {
-    @apply rounded-md bg-indigo-500 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-indigo-400 disabled:opacity-40;
+    @apply rounded-lg bg-gradient-to-b from-indigo-500 to-indigo-600 px-4 py-1.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition hover:from-indigo-400 hover:to-indigo-500 active:scale-[0.98] disabled:opacity-40;
   }
   .input {
-    @apply w-full rounded-md border border-edge bg-black/40 px-3 py-2 text-sm text-ink outline-none focus:border-indigo-400;
+    @apply w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-ink outline-none transition focus:border-indigo-400/70 focus:ring-2 focus:ring-indigo-500/20;
   }
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium;
+  }
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
 }
