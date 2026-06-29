@@ -3,6 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "main": "./dist/start.js",
+  "types": "./dist/start.d.ts",
+  "exports": {
+    ".": "./dist/start.js"
+  },
   "scripts": {
     "start": "tsx src/index.ts",
     "build": "tsc --build"

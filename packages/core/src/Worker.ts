@@ -11,8 +11,11 @@ export interface WorkerOptions extends CoreQueueOptions {
   queue?: string;
   /** Max jobs processed concurrently by this worker. */
   concurrency?: number;
-  /** Idle poll delay (ms) when the queue is empty. */
+  /** Base poll delay (ms) when the queue is active. */
   pollIntervalMs?: number;
+  /** Idle ceiling (ms): the loop backs off toward this when no jobs are found,
+   *  drastically cutting Redis traffic on a quiet queue (Upstash-friendly). */
+  maxIdleMs?: number;
   /** How often the reaper/promoter housekeeping runs (ms). */
   maintenanceIntervalMs?: number;
   /** Grace period for in-flight jobs to finish on shutdown (ms). */
@@ -36,6 +39,7 @@ export class Worker {
   private readonly handlers = new Map<string, JobHandler>();
   private readonly concurrency: number;
   private readonly pollIntervalMs: number;
+  private readonly maxIdleMs: number;
   private readonly maintenanceIntervalMs: number;
   private readonly drainTimeoutMs: number;
   private readonly log: Logger;
@@ -52,6 +56,7 @@ export class Worker {
     this.core = new CoreQueue(redis, opts);
     this.concurrency = opts.concurrency ?? 4;
     this.pollIntervalMs = opts.pollIntervalMs ?? 100;
+    this.maxIdleMs = opts.maxIdleMs ?? 2_000;
     this.maintenanceIntervalMs = opts.maintenanceIntervalMs ?? 1_000;
     this.drainTimeoutMs = opts.drainTimeoutMs ?? 15_000;
     this.log = (opts.logger ?? createLogger()).child({ worker: this.id, queue: this.queue });
@@ -80,8 +85,13 @@ export class Worker {
     process.once("SIGINT", () => onSignal("SIGINT"));
   }
 
-  /** One concurrent slot: claim -> run -> ack/nack, repeat until draining. */
+  /**
+   * One concurrent slot: claim -> run -> ack/nack, repeat until draining.
+   * When the queue is empty the poll delay backs off exponentially toward maxIdleMs,
+   * so an idle worker issues far fewer Redis calls (important on per-request Redis).
+   */
   private async consumeLoop(): Promise<void> {
+    let emptyStreak = 0;
     while (this.running && !this.draining) {
       let job: Job | null;
       try {
@@ -92,9 +102,12 @@ export class Worker {
         continue;
       }
       if (!job) {
-        await sleep(this.pollIntervalMs);
+        emptyStreak++;
+        const backoff = Math.min(this.maxIdleMs, this.pollIntervalMs * 2 ** Math.min(emptyStreak, 6));
+        await sleep(backoff);
         continue;
       }
+      emptyStreak = 0; // queue is active again — poll fast
       await this.process(job);
     }
   }

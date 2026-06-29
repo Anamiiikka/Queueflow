@@ -16,8 +16,11 @@ export async function migrate(connectionString?: string): Promise<void> {
   }
 }
 
-// Allow `tsx src/migrate.ts` as a CLI.
-if (import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith("migrate.ts")) {
+// Run when invoked directly — works for both `tsx src/migrate.ts` (dev) and
+// `node dist/migrate.js` (prod). Comparing the resolved module path to argv[1]
+// is robust across OSes and file extensions.
+const invokedPath = process.argv[1] ? fileURLToPath(import.meta.url) === process.argv[1] : false;
+if (invokedPath || process.argv[1]?.match(/migrate\.(ts|js)$/)) {
   migrate()
     .then(() => {
       console.log("migration applied");

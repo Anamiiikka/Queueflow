@@ -14,7 +14,15 @@ function envInt(name: string, fallback: number): number {
   return n;
 }
 
+function envBool(name: string, fallback: boolean): boolean {
+  const raw = process.env[name];
+  if (raw === undefined) return fallback;
+  return raw === "1" || raw.toLowerCase() === "true";
+}
+
 export const config = {
+  nodeEnv: env("NODE_ENV", "development"),
+  isProduction: (process.env.NODE_ENV ?? "development") === "production",
   redisUrl: env("REDIS_URL", "redis://localhost:6379"),
   databaseUrl: env(
     "DATABASE_URL",
@@ -24,13 +32,26 @@ export const config = {
   workerConcurrency: envInt("WORKER_CONCURRENCY", 4),
   /** Visibility timeout: how long a worker may hold a job before it's reclaimable. */
   leaseMs: envInt("LEASE_MS", 30_000),
+  /** Run the worker loop inside the API process — enables a single-service (free) deploy. */
+  runWorkerInline: envBool("RUN_WORKER_INLINE", false),
+
+  // --- Worker poll tuning (matters on per-request Redis like Upstash) ---
+  /** Fast poll delay when the queue is active. */
+  workerPollMs: envInt("WORKER_POLL_MS", 100),
+  /** Idle poll ceiling — the loop backs off toward this when no jobs are found. */
+  workerMaxIdleMs: envInt("WORKER_MAX_IDLE_MS", 2_000),
+  /** Maintenance (reaper/promoter) cadence. */
+  workerMaintenanceMs: envInt("WORKER_MAINTENANCE_MS", 1_000),
+  /** Queue-depth gauge refresh cadence. */
+  workerDepthMs: envInt("WORKER_DEPTH_MS", 2_000),
 
   // --- Observability ---
   /** Port the worker exposes its Prometheus /metrics on. */
   workerMetricsPort: envInt("WORKER_METRICS_PORT", 9100),
 
   // --- API ---
-  apiPort: envInt("API_PORT", 4000),
+  // Render (and most PaaS) inject PORT; fall back to API_PORT then 4000.
+  apiPort: envInt("PORT", envInt("API_PORT", 4000)),
   /** Allowed browser origins for CORS (comma-separated). */
   corsOrigins: env("CORS_ORIGINS", "http://localhost:3000").split(","),
   jwtSecret: env("JWT_SECRET", "dev-insecure-secret-change-me"),

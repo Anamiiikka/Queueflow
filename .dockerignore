@@ -1,0 +1,14 @@
+**/node_modules
+**/dist
+**/.next
+**/out
+frontend
+monitoring
+.git
+.env
+.env.*
+# Stale incremental-build state must NOT leak in, or tsc --build skips emitting dist.
+**/*.tsbuildinfo
+npm-debug.log*
+PLAN.md
+**/*.md

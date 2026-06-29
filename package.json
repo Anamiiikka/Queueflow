@@ -13,6 +13,9 @@
     "worker": "tsx --env-file-if-exists=.env packages/worker/src/index.ts",
     "api": "tsx --env-file-if-exists=.env packages/api/src/index.ts",
     "db:migrate": "tsx --env-file-if-exists=.env packages/db/src/migrate.ts",
+    "start:api": "node packages/api/dist/index.js",
+    "start:worker": "node packages/worker/dist/index.js",
+    "migrate:prod": "node packages/db/dist/migrate.js",
     "demo:enqueue": "tsx --env-file-if-exists=.env packages/core/scripts/demo-enqueue.ts",
     "infra:up": "docker compose up -d",
     "infra:down": "docker compose down"

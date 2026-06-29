@@ -15,12 +15,35 @@ import { requireAuth } from "./middleware/auth.js";
 
 /** Build the Express app. Dependencies are injected so it's testable in isolation. */
 export function createApp(redis: Redis, pool: Pool): Express {
+  // Fail fast if deployed with the insecure default secret.
+  if (config.isProduction && config.jwtSecret === "dev-insecure-secret-change-me") {
+    throw new Error("JWT_SECRET must be set to a strong value in production");
+  }
+
   const app = express();
   app.set("trust proxy", true);
-  // Allow the dashboard origin(s) to call the API from the browser.
+  // Allow the dashboard origin(s) to call the API from the browser. Configured
+  // values may be full origins or bare hostnames (Render's fromService gives a host).
+  const allowedHosts = new Set(
+    config.corsOrigins.map((o) => {
+      try {
+        return new URL(o.includes("://") ? o : `https://${o}`).host;
+      } catch {
+        return o;
+      }
+    }),
+  );
   app.use(
     cors({
-      origin: config.corsOrigins,
+      origin(origin, cb) {
+        // Same-origin / server-to-server requests have no Origin header — allow.
+        if (!origin) return cb(null, true);
+        try {
+          return cb(null, allowedHosts.has(new URL(origin).host));
+        } catch {
+          return cb(null, false);
+        }
+      },
       exposedHeaders: ["X-RateLimit-Remaining"],
     }),
   );

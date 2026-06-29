@@ -9,6 +9,7 @@
     { "path": "../shared" },
     { "path": "../core" },
     { "path": "../db" },
-    { "path": "../metrics" }
+    { "path": "../metrics" },
+    { "path": "../worker" }
   ]
 }

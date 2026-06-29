@@ -1,0 +1,73 @@
+# QueueFlow — Render Blueprint (free single-service deploy).
+#
+# Provisions:
+#   - queueflow-api        : Docker web service (Express API + WebSocket + inline worker)
+#   - queueflow-dashboard  : static Next.js export
+#
+# External managed services you provide once (entered when the blueprint syncs):
+#   - DATABASE_URL : Neon Postgres connection string (?sslmode=require)
+#   - REDIS_URL    : Upstash Redis connection string (rediss://...)
+#
+# Both secrets live in an env group so you enter them a single time. To scale the
+# worker horizontally, add a `type: worker` service (paid) running the same image
+# with `node packages/worker/dist/index.js` and set RUN_WORKER_INLINE=false here.
+
+envVarGroups:
+  - name: queueflow-secrets
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+
+services:
+  - type: web
+    name: queueflow-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /health
+    # Apply the schema before each deploy (idempotent: CREATE IF NOT EXISTS).
+    preDeployCommand: node packages/db/dist/migrate.js
+    envVars:
+      - fromGroup: queueflow-secrets
+      - key: NODE_ENV
+        value: production
+      - key: RUN_WORKER_INLINE
+        value: "true"
+      - key: JWT_SECRET
+        generateValue: true
+      # Tuned for per-request Redis (Upstash): poll slower, back off harder when idle.
+      - key: WORKER_POLL_MS
+        value: "250"
+      - key: WORKER_MAX_IDLE_MS
+        value: "5000"
+      - key: WORKER_MAINTENANCE_MS
+        value: "5000"
+      - key: WORKER_DEPTH_MS
+        value: "10000"
+      # Allow the dashboard origin (host injected from the static site below).
+      - key: CORS_ORIGINS
+        fromService:
+          name: queueflow-dashboard
+          type: web
+          property: host
+
+  - type: web
+    name: queueflow-dashboard
+    runtime: static
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: ./frontend/out
+    pullRequestPreviewsEnabled: false
+    envVars:
+      # Baked into the static bundle at build time; host injected from the API service.
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          name: queueflow-api
+          type: web
+          property: host
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

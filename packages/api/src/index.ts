@@ -20,6 +20,14 @@ const server = app.listen(config.apiPort, () => {
 // Live job-update gateway over WebSocket (ws://host:PORT/ws).
 const ws = attachWebSocket(server, redis);
 
+// Single-service deploys can run the worker loop inside this process. It shares the
+// same metrics registry, so its metrics appear on this API's /metrics (no extra port).
+if (config.runWorkerInline) {
+  const { startWorker } = await import("@queueflow/worker");
+  await startWorker({ serveMetrics: false });
+  logger.info("worker running inline (RUN_WORKER_INLINE=true)");
+}
+
 // Graceful shutdown so in-flight requests finish before exit.
 for (const sig of ["SIGTERM", "SIGINT"] as const) {
   process.once(sig, () => {

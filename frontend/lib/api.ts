@@ -1,6 +1,12 @@
 import type { DeadLetterRow, JobDetail, QueueStats } from "./types";
 
-export const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+/** Normalize the API base: a bare host (e.g. Render's fromService value) gets https://. */
+function resolveApiBase(): string {
+  const raw = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+  return raw.includes("://") ? raw.replace(/\/$/, "") : `https://${raw.replace(/\/$/, "")}`;
+}
+
+export const API_BASE = resolveApiBase();
 export const WS_BASE = API_BASE.replace(/^http/, "ws");
 
 const TOKEN_KEY = "qf_access_token";
