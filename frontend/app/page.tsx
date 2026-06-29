@@ -96,11 +96,11 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <JobsTable statusFilter={statusFilter} onFilter={setStatusFilter} onSelect={setSelected} />
+          <LiveFeed feed={feed} />
         </div>
         <div className="space-y-6">
+          <JobsTable statusFilter={statusFilter} onFilter={setStatusFilter} onSelect={setSelected} />
           <DeadLetterPanel onSelect={setSelected} />
-          <LiveFeed feed={feed} />
         </div>
       </div>
 
@@ -127,20 +127,38 @@ const FEED_COLORS: Record<string, string> = {
 
 function LiveFeed({ feed }: { feed: ReturnType<typeof useLiveEvents>["feed"] }) {
   return (
-    <div className="panel">
-      <div className="border-b border-white/[0.06] px-4 py-3">
+    <div className="panel flex h-full flex-col">
+      <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-3">
         <h2 className="text-sm font-semibold">Live event feed</h2>
+        <span className="text-xs text-muted">every state transition, as it happens</span>
       </div>
-      <ul className="max-h-72 space-y-0.5 overflow-auto p-3 font-mono text-xs">
-        {feed.length === 0 && <li className="px-1 py-6 text-center text-muted">waiting for events…</li>}
-        {feed.map((e, i) => (
-          <li key={i} className="flex items-center gap-2 rounded px-1 py-0.5 hover:bg-white/5">
-            <span className="text-muted/70">{e.ts ? new Date(e.ts).toLocaleTimeString() : ""}</span>
-            <span className={FEED_COLORS[e.event] ?? "text-indigo-300"}>{e.event}</span>
-            {e.type && <span className="text-ink">{e.type}</span>}
-            {e.status && <span className="text-muted">[{e.status}]</span>}
-          </li>
-        ))}
+      <ul className="max-h-[34rem] flex-1 space-y-0.5 overflow-auto p-3 font-mono text-xs">
+        {feed.length === 0 && (
+          <li className="px-1 py-10 text-center text-muted">waiting for events…</li>
+        )}
+        {feed.map((e, i) => {
+          const id = typeof e.jobId === "string" ? e.jobId : Array.isArray(e.jobId) ? `${e.jobId.length} jobs` : "";
+          return (
+            <li
+              key={i}
+              className="flex items-center gap-3 rounded-md px-2 py-1 hover:bg-white/5"
+            >
+              <span className="w-20 shrink-0 text-muted/70">
+                {e.ts ? new Date(e.ts).toLocaleTimeString() : ""}
+              </span>
+              <span className={`w-24 shrink-0 font-semibold ${FEED_COLORS[e.event] ?? "text-indigo-300"}`}>
+                {e.event}
+              </span>
+              <span className="w-16 shrink-0 text-ink">{e.type ?? ""}</span>
+              {e.status && (
+                <span className="rounded bg-white/5 px-1.5 py-0.5 text-[10px] text-muted">
+                  {e.status}
+                </span>
+              )}
+              <span className="ml-auto truncate text-muted/50">{id}</span>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
