@@ -28,8 +28,8 @@ services:
     dockerContext: .
     plan: free
     healthCheckPath: /health
-    # Apply the schema before each deploy (idempotent: CREATE IF NOT EXISTS).
-    preDeployCommand: node packages/db/dist/migrate.js
+    # Schema is applied out-of-band against Neon (npm run db:migrate). It's idempotent
+    # (CREATE IF NOT EXISTS); pre-deploy hooks are a paid Render feature, so we skip them.
     envVars:
       - fromGroup: queueflow-secrets
       - key: NODE_ENV
