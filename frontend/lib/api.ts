@@ -104,4 +104,5 @@ export const api = {
     request<{ paused: boolean }>(`/admin/queues/${queue}/pause`, { method: "POST" }),
   resume: (queue = "default") =>
     request<{ paused: boolean }>(`/admin/queues/${queue}/resume`, { method: "POST" }),
+  chaos: (n = 5) => request<{ abandoned: number }>(`/admin/chaos?n=${n}`, { method: "POST" }),
 };

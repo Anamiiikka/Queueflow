@@ -46,6 +46,17 @@ export class QueueService {
     return this.repo.listJobs(filter);
   }
 
+  /**
+   * Simulate a worker crash for the interactive demo: enqueue a few jobs, then claim
+   * them as a phantom worker with a SHORT lease and abandon them (never ack). The real
+   * worker's reaper then recovers and completes them — genuine fault tolerance, on demand.
+   */
+  async simulateCrash(queue: string, n: number): Promise<{ abandoned: number }> {
+    const count = Math.max(1, Math.min(n, 8));
+    const ids = await this.core.injectStuck(queue, count, 4_000);
+    return { abandoned: ids.length };
+  }
+
   /** Combined live (Redis) + durable (Postgres) view for the dashboard. */
   async stats(queue: string): Promise<{ live: Record<string, number>; totals: Record<string, number> }> {
     const [live, totals] = await Promise.all([

@@ -3,8 +3,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { StatusBadge } from "./ui";
+import { Select } from "./Select";
 
-const STATUSES = ["", "pending", "processing", "completed", "retrying", "dead", "cancelled"];
+const STATUS_OPTIONS = [
+  { value: "", label: "all statuses" },
+  ...["pending", "processing", "completed", "retrying", "dead", "cancelled"].map((s) => ({
+    value: s,
+    label: s,
+  })),
+];
 
 export function JobsTable({
   statusFilter,
@@ -24,19 +31,9 @@ export function JobsTable({
 
   return (
     <div className="panel">
-      <div className="flex items-center justify-between border-b border-edge px-4 py-3">
+      <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-3">
         <h2 className="text-sm font-semibold">Recent jobs</h2>
-        <select
-          className="input w-40 py-1 text-xs"
-          value={statusFilter}
-          onChange={(e) => onFilter(e.target.value)}
-        >
-          {STATUSES.map((s) => (
-            <option key={s || "all"} value={s}>
-              {s || "all statuses"}
-            </option>
-          ))}
-        </select>
+        <Select className="w-40" value={statusFilter} onChange={onFilter} options={STATUS_OPTIONS} />
       </div>
 
       <div className="max-h-[28rem] overflow-auto">

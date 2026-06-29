@@ -19,6 +19,16 @@ export function adminRouter(queue: QueueService, redis: Redis): Router {
     }),
   );
 
+  // Interactive demo: crash a worker mid-flight and let the reaper recover the jobs.
+  r.post(
+    "/chaos",
+    asyncHandler(async (req, res) => {
+      const queueName = typeof req.query.queue === "string" ? req.query.queue : "default";
+      const n = req.query.n ? Number(req.query.n) : 5;
+      res.json(await queue.simulateCrash(queueName, n));
+    }),
+  );
+
   r.post(
     "/queues/:queue/pause",
     asyncHandler(async (req, res) => {

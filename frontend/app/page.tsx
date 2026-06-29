@@ -6,6 +6,7 @@ import { api, ensureSession } from "@/lib/api";
 import { useLiveEvents } from "@/lib/useWebSocket";
 import { Sparkline, StatCard } from "@/components/ui";
 import { EnqueueForm } from "@/components/EnqueueForm";
+import { FlowBoard } from "@/components/FlowBoard";
 import { JobsTable } from "@/components/JobsTable";
 import { JobDetailModal } from "@/components/JobDetailModal";
 import { DeadLetterPanel } from "@/components/DeadLetterPanel";
@@ -23,7 +24,7 @@ export default function DashboardPage() {
       .finally(() => setReady(true));
   }, []);
 
-  const { connected, feed, series } = useLiveEvents("default");
+  const { connected, feed, series, flow } = useLiveEvents("default");
   const { data: stats } = useQuery({
     queryKey: ["stats"],
     queryFn: () => api.stats("default"),
@@ -88,6 +89,8 @@ export default function DashboardPage() {
         <StatCard label="Completed" value={totals.completed ?? 0} accent="emerald" />
         <StatCard label="Dead-letter" value={live.dlq ?? 0} accent="red" />
       </section>
+
+      <FlowBoard flow={flow} />
 
       <EnqueueForm />
 

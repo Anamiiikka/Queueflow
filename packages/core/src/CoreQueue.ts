@@ -151,13 +151,54 @@ export class CoreQueue {
     return { id: resultId, created };
   }
 
-  /** Atomically claim the next ready job for a worker. Returns null if queue is empty. */
-  async claim(queue: string, workerId: string): Promise<Job | null> {
+  /**
+   * Inject jobs directly into the "processing" state held by a phantom worker with a
+   * short lease — i.e. exactly the state a crashed worker leaves behind. Deterministic
+   * (no race with live workers) for the chaos demo; the reaper then recovers them.
+   */
+  async injectStuck(queue: string, count: number, leaseMs: number): Promise<string[]> {
+    const now = this.now();
+    const lockedUntil = now + leaseMs;
+    const ids: string[] = [];
+    for (let i = 0; i < count; i++) {
+      const id = randomUUID();
+      const job: Job = {
+        id,
+        type: "ai",
+        queue,
+        status: "processing",
+        priority: 2,
+        payload: { chaos: true },
+        attempts: 1,
+        maxAttempts: 5,
+        availableAt: now,
+        lockedBy: "phantom-worker-💥",
+        lockedUntil,
+        dependsOn: [],
+        createdAt: now,
+        updatedAt: now,
+      };
+      await this.redis.hset(keys.job(id), ...this.serialize(job));
+      await this.redis.hset(keys.job(id), "lockedBy", job.lockedBy!, "lockedUntil", String(lockedUntil));
+      await this.redis.zadd(keys.processing(queue), lockedUntil, id);
+      await this.fire("onCreated", (h) => h.onCreated!(job));
+      await this.fire("onStarted", (h) => h.onStarted!(job));
+      ids.push(id);
+    }
+    return ids;
+  }
+
+  /**
+   * Atomically claim the next ready job for a worker. Returns null if queue is empty.
+   * `leaseMs` overrides the default visibility timeout (used by the chaos demo to make
+   * an abandoned lease expire quickly).
+   */
+  async claim(queue: string, workerId: string, leaseMs = this.leaseMs): Promise<Job | null> {
     const flat = await this.redis.qf_claim(
       keys.pending(queue),
       keys.processing(queue),
       String(this.now()),
-      String(this.leaseMs),
+      String(leaseMs),
       workerId,
       JOB_PREFIX,
     );

@@ -3,8 +3,13 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { Select } from "./Select";
 
-const TYPES = ["email", "image", "pdf", "ai"];
+const TYPE_OPTIONS = ["email", "image", "pdf", "ai"].map((t) => ({ value: t, label: t }));
+const PRIORITY_OPTIONS = [1, 2, 3, 4, 5].map((p) => ({
+  value: String(p),
+  label: p === 1 ? "1 — highest" : p === 5 ? "5 — lowest" : String(p),
+}));
 
 export function EnqueueForm() {
   const qc = useQueryClient();
@@ -33,27 +38,16 @@ export function EnqueueForm() {
       <div className="flex flex-wrap items-end gap-3">
         <label className="text-xs text-muted">
           Type
-          <select className="input mt-1" value={type} onChange={(e) => setType(e.target.value)}>
-            {TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
+          <Select className="mt-1 w-36" value={type} onChange={setType} options={TYPE_OPTIONS} />
         </label>
         <label className="text-xs text-muted">
           Priority (1=high)
-          <select
-            className="input mt-1"
-            value={priority}
-            onChange={(e) => setPriority(Number(e.target.value))}
-          >
-            {[1, 2, 3, 4, 5].map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
-          </select>
+          <Select
+            className="mt-1 w-40"
+            value={String(priority)}
+            onChange={(v) => setPriority(Number(v))}
+            options={PRIORITY_OPTIONS}
+          />
         </label>
         <label className="text-xs text-muted">
           Count
