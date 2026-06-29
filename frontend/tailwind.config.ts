@@ -5,14 +5,15 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        card: "#0d0c16",
-        edge: "#23223a",
-        ink: "#eef0f6",
-        muted: "#8b8ca3",
+        ink: "#e7e7e0", // warm off-white
+        muted: "#7e8590", // cool gray for labels
+        gold: "#d6a35c", // single warm accent
+        sage: "#86b06f", // healthy / completed
+        rust: "#cf6f5e", // failed / dead
       },
       fontFamily: {
-        sans: ["var(--font-display)", "system-ui", "sans-serif"],
-        display: ["var(--font-display)", "system-ui", "sans-serif"],
+        serif: ["var(--font-serif)", "Georgia", "serif"],
+        sans: ["ui-sans-serif", "system-ui", "sans-serif"],
         mono: ["var(--font-mono)", "ui-monospace", "monospace"],
       },
     },

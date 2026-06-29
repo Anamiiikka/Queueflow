@@ -46,7 +46,7 @@ export function Select({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between gap-2 rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-ink outline-none transition hover:border-white/20 focus:border-indigo-400/70 focus:ring-2 focus:ring-indigo-500/20"
+        className="flex w-full items-center justify-between gap-2 rounded-md border border-white/10 bg-black/30 px-3 py-2 text-sm text-ink outline-none transition hover:border-white/25 focus:border-gold/60"
       >
         <span className="truncate">{current?.label ?? value}</span>
         <svg
@@ -61,7 +61,7 @@ export function Select({
       </button>
 
       {open && (
-        <ul className="absolute z-30 mt-1.5 max-h-60 w-full overflow-auto rounded-lg border border-white/10 bg-[#0e0e16] p-1 shadow-xl shadow-black/50">
+        <ul className="absolute z-30 mt-1.5 max-h-60 w-full overflow-auto rounded-md border border-white/10 bg-[#14171d] p-1 shadow-xl shadow-black/50">
           {options.map((o) => {
             const active = o.value === value;
             return (
@@ -72,8 +72,8 @@ export function Select({
                     onChange(o.value);
                     setOpen(false);
                   }}
-                  className={`flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-left text-sm transition hover:bg-white/10 ${
-                    active ? "bg-indigo-500/15 text-indigo-200" : "text-ink"
+                  className={`flex w-full items-center justify-between rounded px-2.5 py-1.5 text-left text-sm transition hover:bg-white/[0.06] ${
+                    active ? "bg-gold/15 text-gold" : "text-ink"
                   }`}
                 >
                   {o.label}

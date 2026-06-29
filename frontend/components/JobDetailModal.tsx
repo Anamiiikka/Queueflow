@@ -28,13 +28,13 @@ export function JobDetailModal({ id, onClose }: { id: string; onClose: () => voi
       onClick={onClose}
     >
       <div
-        className="h-full w-full max-w-md overflow-auto border-l border-edge bg-card p-5"
+        className="h-full w-full max-w-md overflow-auto border-l border-white/[0.08] bg-[#11141a] p-5"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between">
           <div>
-            <h3 className="text-lg font-semibold">{job?.type ?? "Job"}</h3>
-            <p className="break-all font-mono text-xs text-muted">{id}</p>
+            <h3 className="font-serif text-xl font-semibold">{job?.type ?? "Job"}</h3>
+            <p className="mt-0.5 break-all font-mono text-xs text-muted">{id}</p>
           </div>
           <button className="btn" onClick={onClose}>
             ✕
@@ -70,24 +70,24 @@ export function JobDetailModal({ id, onClose }: { id: string; onClose: () => voi
             </div>
 
             {job.error && (
-              <div className="mt-4 rounded-md border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-300">
+              <div className="mt-4 rounded-md border border-rust/30 bg-rust/10 p-3 font-mono text-xs text-rust">
                 {job.error}
               </div>
             )}
 
             <section className="mt-5">
-              <h4 className="mb-2 text-xs uppercase tracking-wide text-muted">Payload</h4>
-              <pre className="overflow-auto rounded-md bg-black/40 p-3 text-xs text-ink">
+              <h4 className="label mb-2">Payload</h4>
+              <pre className="overflow-auto rounded-md border border-white/[0.06] bg-black/30 p-3 font-mono text-xs text-ink">
                 {JSON.stringify(job.payload, null, 2)}
               </pre>
             </section>
 
             <section className="mt-5">
-              <h4 className="mb-2 text-xs uppercase tracking-wide text-muted">Timeline</h4>
+              <h4 className="label mb-2">Timeline</h4>
               <ol className="space-y-2">
                 {data!.events.map((e, i) => (
-                  <li key={i} className="flex items-center gap-3 text-sm">
-                    <span className="h-2 w-2 rounded-full bg-indigo-400" />
+                  <li key={i} className="flex items-center gap-3 font-mono text-sm">
+                    <span className="h-1.5 w-1.5 rounded-full bg-gold" />
                     <span className="font-medium">{e.event}</span>
                     {e.worker_id && <span className="text-xs text-muted">{e.worker_id}</span>}
                     <span className="ml-auto text-xs text-muted">

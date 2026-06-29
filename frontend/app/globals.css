@@ -7,60 +7,37 @@
 }
 
 body {
-  color: #eef0f6;
-  background-color: #05040c;
-  /* Layered ambient color glows — violet up top, cyan + fuchsia in the corners. */
-  background-image:
-    radial-gradient(70% 45% at 50% -10%, rgba(139, 92, 246, 0.22), transparent 70%),
-    radial-gradient(45% 45% at 100% 100%, rgba(34, 211, 238, 0.12), transparent 70%),
-    radial-gradient(45% 45% at 0% 90%, rgba(217, 70, 239, 0.12), transparent 70%);
-  background-attachment: fixed;
-}
-
-/* Faint blueprint grid that fades out below the fold. */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-  background-size: 46px 46px;
-  -webkit-mask-image: radial-gradient(ellipse 100% 65% at 50% 0%, #000 30%, transparent 80%);
-  mask-image: radial-gradient(ellipse 100% 65% at 50% 0%, #000 30%, transparent 80%);
+  color: #e7e7e0;
+  background: #0f1216; /* flat charcoal — no glow, no gradient */
 }
 
 @layer components {
+  /* Flat, thin-bordered surface. No blur, no shadow stacking. */
   .panel {
-    @apply rounded-2xl border border-white/[0.08] bg-[#0d0c16]/70 backdrop-blur-xl;
-    box-shadow:
-      0 1px 0 0 rgba(255, 255, 255, 0.05) inset,
-      0 16px 40px -24px rgba(0, 0, 0, 0.8);
+    @apply rounded-md border border-white/[0.09] bg-white/[0.012];
   }
   .btn {
-    @apply rounded-xl border border-white/10 bg-white/[0.04] px-3 py-1.5 text-sm font-medium text-ink transition hover:border-white/20 hover:bg-white/[0.09] active:scale-[0.97] disabled:opacity-40;
+    @apply rounded-md border border-white/15 bg-transparent px-3 py-1.5 text-sm font-medium text-ink transition hover:border-white/30 hover:bg-white/[0.04] active:scale-[0.99] disabled:opacity-40;
   }
   .btn-primary {
-    @apply rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-600 px-4 py-1.5 text-sm font-semibold text-white transition hover:from-violet-400 hover:to-fuchsia-500 active:scale-[0.97] disabled:opacity-40;
-    box-shadow: 0 8px 24px -8px rgba(167, 70, 239, 0.6);
+    @apply rounded-md bg-gold px-4 py-1.5 text-sm font-semibold text-[#15130c] transition hover:bg-[#e0b06a] active:scale-[0.99] disabled:opacity-40;
   }
   .input {
-    @apply w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-ink outline-none transition focus:border-violet-400/70 focus:ring-2 focus:ring-violet-500/25;
+    @apply w-full rounded-md border border-white/10 bg-black/30 px-3 py-2 text-sm text-ink outline-none transition focus:border-gold/60;
+  }
+  /* Tiny uppercase tracked label — the editorial signature. */
+  .label {
+    @apply font-mono text-[10px] uppercase tracking-[0.18em] text-muted;
   }
   .chip {
-    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold;
-  }
-  .text-gradient {
-    @apply bg-gradient-to-r from-violet-300 via-fuchsia-300 to-cyan-200 bg-clip-text text-transparent;
+    @apply inline-flex items-center gap-1.5 font-mono text-[11px] lowercase;
   }
 }
 
 @keyframes chipIn {
   from {
     opacity: 0;
-    transform: translateY(5px) scale(0.9);
+    transform: translateY(3px);
   }
   to {
     opacity: 1;
@@ -68,16 +45,16 @@ body::before {
   }
 }
 .flow-chip {
-  animation: chipIn 0.22s ease;
+  animation: chipIn 0.2s ease;
 }
 
 *::-webkit-scrollbar {
-  width: 9px;
-  height: 9px;
+  width: 8px;
+  height: 8px;
 }
 *::-webkit-scrollbar-thumb {
-  background: linear-gradient(rgba(167, 139, 250, 0.35), rgba(217, 70, 239, 0.25));
-  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
 }
 *::-webkit-scrollbar-track {
   background: transparent;

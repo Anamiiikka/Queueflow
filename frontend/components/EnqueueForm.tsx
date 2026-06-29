@@ -34,7 +34,7 @@ export function EnqueueForm() {
 
   return (
     <div className="panel p-4">
-      <h2 className="mb-3 text-sm font-semibold text-ink">Enqueue jobs</h2>
+      <h2 className="label mb-3">Enqueue Jobs</h2>
       <div className="flex flex-wrap items-end gap-3">
         <label className="text-xs text-muted">
           Type
@@ -67,7 +67,7 @@ export function EnqueueForm() {
         >
           {mutation.isPending ? "…" : "Enqueue"}
         </button>
-        {note && <span className="text-xs text-emerald-400">{note}</span>}
+        {note && <span className="font-mono text-xs text-sage">{note}</span>}
       </div>
     </div>
   );

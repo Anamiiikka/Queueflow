@@ -32,13 +32,13 @@ export function JobsTable({
   return (
     <div className="panel">
       <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-3">
-        <h2 className="text-sm font-semibold">Recent jobs</h2>
+        <h2 className="label">Recent Jobs</h2>
         <Select className="w-40" value={statusFilter} onChange={onFilter} options={STATUS_OPTIONS} />
       </div>
 
       <div className="max-h-[28rem] overflow-auto">
         <table className="w-full text-left text-sm">
-          <thead className="sticky top-0 bg-card text-xs uppercase text-muted">
+          <thead className="label sticky top-0 bg-[#11141a]">
             <tr>
               <th className="px-4 py-2 font-medium">Type</th>
               <th className="px-4 py-2 font-medium">Status</th>
@@ -52,7 +52,7 @@ export function JobsTable({
               <tr
                 key={j.id}
                 onClick={() => onSelect(j.id)}
-                className="cursor-pointer border-t border-edge/60 hover:bg-white/5"
+                className="cursor-pointer border-t border-white/[0.05] hover:bg-white/[0.025]"
               >
                 <td className="px-4 py-2 font-medium">{j.type}</td>
                 <td className="px-4 py-2">
