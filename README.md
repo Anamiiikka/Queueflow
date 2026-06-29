@@ -29,6 +29,35 @@ dashboard.
       Redis  ◄──claim/ack/nack──  Worker pool (priority, retries, DLQ, crash recovery)
 ```
 
+## Benchmarks
+
+Engine throughput on a local Redis (no-op handler, so this measures the queue itself —
+`npm run loadtest -- 20000 50`):
+
+| Metric | Result |
+|---|---|
+| Enqueue throughput | **~25,000 jobs/sec** |
+| Process throughput (claim + ack) | **~15,000 jobs/sec** |
+| Steady-state round-trip latency (enqueue → claim → ack) | **p50 1 ms · p99 2 ms** |
+
+## Fault tolerance (chaos test)
+
+`npm run chaos` enqueues 20 jobs, lets a worker claim 6 and **kills it mid-flight**
+(leases abandoned), then starts a survivor whose reaper recovers the orphaned jobs:
+
+```
+2. worker-1 claimed 6 jobs, then 💥 CRASHED (leases abandoned).
+   queue now: 14 pending, 6 stuck in-flight (held by the dead worker).
+3. worker-2 starts. Its reaper recovers the dead worker's jobs after the 2000ms lease…
+   [reaper] recovered expired jobs  count=6
+=== Result ===
+Jobs enqueued : 20 · completed : 20 · recovered after crash : 6 · lost : 0 · reprocessed twice : 0
+✅ PASS — no work lost; the crashed worker's jobs were recovered and completed.
+```
+
+The same guarantee is asserted in the test suite (`npm test`): *"requeues a crashed
+worker's job and runs it exactly once."*
+
 ## Local development
 
 ```bash

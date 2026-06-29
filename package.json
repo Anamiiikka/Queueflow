@@ -17,6 +17,8 @@
     "start:worker": "node packages/worker/dist/index.js",
     "migrate:prod": "node packages/db/dist/migrate.js",
     "demo:enqueue": "tsx --env-file-if-exists=.env packages/core/scripts/demo-enqueue.ts",
+    "loadtest": "tsx scripts/load-test.ts",
+    "chaos": "tsx scripts/chaos.ts",
     "infra:up": "docker compose up -d",
     "infra:down": "docker compose down"
   },
